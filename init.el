@@ -17,13 +17,12 @@
 (defvar package-list)
 (setq package-list
       '(
-	color-theme-sanityinc-tomorrow
 	company
 	company-go
-	evil
 	flycheck
 	go-mode
 	helm
+	material-theme
 	))
 
 ;; Refresh package list
@@ -48,13 +47,11 @@
 ;; Bracket matching
 (electric-pair-mode 1)
 
-;; Theme setup
-(require 'color-theme-sanityinc-tomorrow)
-(load-theme 'sanityinc-tomorrow-night t)
-
-;; Evil mode
-(require 'evil)
-(evil-mode 1)
+;; Use Helm
+(require 'helm)
+(require 'helm-config)
+(helm-mode 1)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 
 ;; Enable Flycheck
 (global-flycheck-mode)
@@ -75,4 +72,9 @@
 ;; Lisp setup
 (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
+;; Theme setup
+(load-theme 'material t)
+
 (provide 'init)
+
+;;; init.el ends here
