@@ -19,9 +19,9 @@
       '(
 	company
 	company-go
+        evil
 	flycheck
 	go-mode
-	helm
 	material-theme
 	))
 
@@ -38,6 +38,10 @@
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 
+;; Evil Mode
+(require 'evil)
+(evil-mode 1)
+
 ;;  Display settings
 (global-linum-mode t)
 (global-hl-line-mode 1)
@@ -47,11 +51,11 @@
 ;; Bracket matching
 (electric-pair-mode 1)
 
-;; Use Helm
-(require 'helm)
-(require 'helm-config)
-(helm-mode 1)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
+;; Use Ido
+(require 'ido)
+(ido-mode t)
+(setq ido-enable-flex-matching t)
+(setq ido-everywhere t)
 
 ;; Enable Flycheck
 (global-flycheck-mode)
