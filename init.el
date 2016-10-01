@@ -20,6 +20,7 @@
 	company
 	company-go
         evil
+	exec-path-from-shell
 	flycheck
 	go-mode
 	material-theme
@@ -34,9 +35,20 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+;; Read your $PATH properly on stupid macOS
+(exec-path-from-shell-initialize)
+(exec-path-from-shell-copy-env "GOPATH")
+
 ;; Hide toolbars and menu bar
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+
+;; Set default font
+(set-face-attribute 'default nil
+                    :family "Source Code Pro"
+                    :height 130
+                    :weight 'normal
+                    :width 'normal)
 
 ;; Evil Mode
 (require 'evil)
@@ -82,3 +94,17 @@
 (provide 'init)
 
 ;;; init.el ends here
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
