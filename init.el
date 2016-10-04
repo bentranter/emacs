@@ -17,6 +17,7 @@
 (defvar package-list)
 (setq package-list
       '(
+	better-defaults
 	company
 	company-go
         evil
