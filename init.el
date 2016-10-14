@@ -17,14 +17,15 @@
 (defvar package-list)
 (setq package-list
       '(
+        base16-theme
 	better-defaults
 	company
 	company-go
         evil
 	exec-path-from-shell
 	flycheck
+        git-gutter
 	go-mode
-	material-theme
 	))
 
 ;; Refresh package list
@@ -40,9 +41,8 @@
 (exec-path-from-shell-initialize)
 (exec-path-from-shell-copy-env "GOPATH")
 
-;; Hide toolbars and menu bar
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+;; Wrap lines
+(setq visual-line-mode t)
 
 ;; Set default font
 (set-face-attribute 'default nil
@@ -51,14 +51,22 @@
                     :weight 'normal
                     :width 'normal)
 
+;; Enable Git Gutter (like Sublime Text)
+(global-git-gutter-mode +1)
+
 ;; Evil Mode
 (require 'evil)
 (evil-mode 1)
 
 ;;  Display settings
-(global-linum-mode t)
 (global-hl-line-mode 1)
-(setq linum-format "%d ")
+(global-linum-mode 1)
+(defadvice linum-update-window (around linum-dynamic activate)
+  (let* ((w (length (number-to-string
+                     (count-lines (point-min) (point-max)))))
+         (linum-format (concat " %" (number-to-string w) "d ")))
+    ad-do-it))
+(fringe-mode -1)
 (setq column-number-mode t)
 
 ;; Bracket matching
@@ -90,7 +98,7 @@
 (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
 ;; Theme setup
-(load-theme 'material t)
+(load-theme 'base16-ocean t)
 
 (provide 'init)
 
@@ -102,7 +110,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow))))
+    (exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+ '(safe-local-variable-values (quote ((hl-sexp-mode) (rainbow-mode . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
