@@ -26,6 +26,7 @@
 	flycheck
         git-gutter
 	go-mode
+        go-eldoc
         neotree ;; for now, may remove it
         terraform-mode
         tide ;; for now, may remove it
@@ -105,7 +106,9 @@
 
 ;; Go setup
 (require 'company-go)
+(require 'go-eldoc)
 (add-hook 'before-save-hook 'gofmt-before-save)
+(add-hook 'go-mode-hook 'go-eldoc-setup)
 (add-hook 'go-mode-hook 'company-mode)
 (add-hook 'go-mode-hook (lambda ()
 			  (set
@@ -154,7 +157,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(safe-local-variable-values (quote ((hl-sexp-mode) (rainbow-mode . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
