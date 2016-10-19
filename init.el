@@ -26,6 +26,9 @@
 	flycheck
         git-gutter
 	go-mode
+        neotree ;; for now, may remove it
+        terraform-mode
+        tide ;; for now, may remove it
 	))
 
 ;; Refresh package list
@@ -42,7 +45,7 @@
 (exec-path-from-shell-copy-env "GOPATH")
 
 ;; Wrap lines
-(setq visual-line-mode t)
+(global-visual-line-mode 1)
 
 ;; Set default font
 (set-face-attribute 'default nil
@@ -81,12 +84,27 @@
 ;; Enable Flycheck
 (global-flycheck-mode)
 
+;; Configure Company Mode
+(eval-after-load 'company
+  '(progn
+     (define-key company-active-map (kbd "TAB") 'company-select-next)
+     (define-key company-active-map [tab] 'company-select-next)))
+(setq-default company-selection-wrap-around t)
+(setq-default company-minimum-prefix-length 1)
+
+;; Setup NeoTree so it works well with Evil Mode
+(require 'neotree)
+(add-hook 'neotree-mode-hook
+	  (lambda ()
+	    (define-key evil-normal-state-local-map (kbd "TAB") 'neotree-enter)
+	    (define-key evil-normal-state-local-map (kbd "SPC") 'neotree-enter)
+	    (define-key evil-normal-state-local-map (kbd "q") 'neotree-hide)
+	    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
+;; Toggle it with C-x C-t since I do it constantly
+(global-set-key (kbd "C-x C-t") 'neotree-toggle)
+
 ;; Go setup
 (require 'company-go)
-
-(setq exec-path (cons "/usr/local/go/bin" exec-path))
-(add-to-list 'exec-path "/Users/ben/Code/go/bin")
-
 (add-hook 'before-save-hook 'gofmt-before-save)
 (add-hook 'go-mode-hook 'company-mode)
 (add-hook 'go-mode-hook (lambda ()
@@ -94,12 +112,38 @@
 			   (make-local-variable 'company-backends) '(company-go))
 			  (company-mode)))
 
+;; Terraform Setup
+(require 'terraform-mode)
+(add-hook 'terraform-mode-hook 'terraform-fmt-hook)
+(defun terraform-fmt-hook ()
+  (terraform-format-on-save-mode 1))
+(setq terraform-indent-level 2)
+
+;; Python setup
+
 ;; Lisp setup
 (add-hook 'emacs-lisp-mode-hook 'company-mode)
 
-;; Theme setup
-(load-theme 'base16-ocean t)
+;; Typescript Setup
+(defun setup-tide-mode ()
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (company-mode +1))
+(setq company-tooltip-align-annotations t)
+(add-hook 'before-save-hook 'tide-format-before-save)
+(add-hook 'typescript-mode-hook #'setup-tide-mode)
+(setq tide-format-options '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions t :placeOpenBraceOnNewLineForFunctions nil))
 
+;; Fix Path on macOS
+(setq exec-path (cons "/usr/local/go/bin" exec-path))
+(add-to-list 'exec-path "/Users/ben/Code/go/bin")
+;; Theme setup
+(load-theme 'base16-tomorrow-night t)
+
+;; And that's it!
 (provide 'init)
 
 ;;; init.el ends here
@@ -110,7 +154,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(safe-local-variable-values (quote ((hl-sexp-mode) (rainbow-mode . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
