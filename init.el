@@ -10,7 +10,6 @@
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
-
 (package-initialize)
 
 ;; List all packages
@@ -24,10 +23,12 @@
         evil
 	exec-path-from-shell
 	flycheck
-        git-gutter
 	go-mode
         go-eldoc
-        neotree ;; for now, may remove it
+        ido
+        ido-ubiquitous
+        ido-vertical-mode
+        neotree ;; for now, may remove
         terraform-mode
         tide ;; for now, may remove it
 	))
@@ -41,6 +42,9 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+;; Use English even if my computer isn't in English
+(set-language-environment "English")
+
 ;; Read your $PATH properly on stupid macOS
 (exec-path-from-shell-initialize)
 (exec-path-from-shell-copy-env "GOPATH")
@@ -50,13 +54,29 @@
 
 ;; Set default font
 (set-face-attribute 'default nil
-                    :family "Source Code Pro"
-                    :height 130
+                    :family "InconsolataGo"
+                    :height 140
                     :weight 'normal
                     :width 'normal)
 
-;; Enable Git Gutter (like Sublime Text)
-(global-git-gutter-mode +1)
+;; Insane stuff I stole from Coda Hale
+(defun coda/configure-cocoa ()
+  ;; open up maximized-ish
+  (let ((px (display-pixel-width))
+        (py (display-pixel-height))
+        (fx (frame-char-width))
+        (fy (frame-char-height))
+        tx ty)
+    (setq tx (- (/ px fx) 7))
+    (setq ty (- (/ py fy) 4))
+    (setq initial-frame-alist '((top . 2) (left . 2)))
+    (add-to-list 'default-frame-alist (cons 'width tx))
+    (add-to-list 'default-frame-alist (cons 'height ty)))
+
+  ;; don't scroll like a maniac
+  (setq mouse-wheel-scroll-amount '(1))
+  (setq mouse-wheel-progressive-speed nil))
+(if (memq window-system '(mac ns)) (coda/configure-cocoa))
 
 ;; Evil Mode
 (require 'evil)
@@ -81,6 +101,10 @@
 (ido-mode t)
 (setq ido-enable-flex-matching t)
 (setq ido-everywhere t)
+(require 'ido-vertical-mode)
+(ido-vertical-mode 1)
+(require 'ido-ubiquitous)
+(ido-ubiquitous-mode 1)
 
 ;; Enable Flycheck
 (global-flycheck-mode)
@@ -103,6 +127,8 @@
 	    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter)))
 ;; Toggle it with C-x C-t since I do it constantly
 (global-set-key (kbd "C-x C-t") 'neotree-toggle)
+(setq neo-smart-open t)
+(setq neo-theme 'nerd)
 
 ;; Go setup
 (require 'company-go)
@@ -143,8 +169,9 @@
 ;; Fix Path on macOS
 (setq exec-path (cons "/usr/local/go/bin" exec-path))
 (add-to-list 'exec-path "/Users/ben/Code/go/bin")
+
 ;; Theme setup
-(load-theme 'base16-tomorrow-night t)
+(load-theme 'base16-onedark t)
 
 ;; And that's it!
 (provide 'init)
@@ -155,9 +182,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#151515" "#fb9fb1" "#acc267" "#ddb26f" "#6fc2ef" "#e1a3ee" "#6fc2ef" "#d0d0d0"])
+ '(ansi-term-color-vector
+   [unspecified "#151515" "#fb9fb1" "#acc267" "#ddb26f" "#6fc2ef" "#e1a3ee" "#6fc2ef" "#d0d0d0"])
+ '(custom-safe-themes
+   (quote
+    ("6145e62774a589c074a31a05dfa5efdf8789cf869104e905956f0cbd7eda9d0e" "e1498b2416922aa561076edc5c9b0ad7b34d8ff849f335c13364c8f4276904f0" "73ad471d5ae9355a7fa28675014ae45a0589c14492f52c32a4e9b393fcc333fd" "aea30125ef2e48831f46695418677b9d676c3babf43959c8e978c0ad672a7329" "16dd114a84d0aeccc5ad6fd64752a11ea2e841e3853234f19dc02a7b91f5d661" "cabc32838ccceea97404f6fcb7ce791c6e38491fd19baa0fcfb336dcc5f6e23c" "7bef2d39bac784626f1635bd83693fae091f04ccac6b362e0405abf16a32230c" default)))
  '(package-selected-packages
    (quote
-    (go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(safe-local-variable-values (quote ((hl-sexp-mode) (rainbow-mode . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
