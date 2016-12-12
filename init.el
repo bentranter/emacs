@@ -11,7 +11,7 @@
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
-
+ 
 ;; List all packages
 (defvar package-list)
 (setq package-list
@@ -23,6 +23,7 @@
         evil
 	exec-path-from-shell
 	flycheck
+        git-gutter
 	go-mode
         go-eldoc
         ido
@@ -92,6 +93,9 @@
     ad-do-it))
 (fringe-mode -1)
 (setq column-number-mode t)
+
+;; Enable git gutter
+(global-git-gutter-mode +1)
 
 ;; Bracket matching
 (electric-pair-mode 1)
@@ -185,13 +189,13 @@
  '(ansi-color-names-vector
    ["#151515" "#fb9fb1" "#acc267" "#ddb26f" "#6fc2ef" "#e1a3ee" "#6fc2ef" "#d0d0d0"])
  '(ansi-term-color-vector
-   [unspecified "#151515" "#fb9fb1" "#acc267" "#ddb26f" "#6fc2ef" "#e1a3ee" "#6fc2ef" "#d0d0d0"])
+   [unspecified "#151515" "#fb9fb1" "#acc267" "#ddb26f" "#6fc2ef" "#e1a3ee" "#6fc2ef" "#d0d0d0"] t)
  '(custom-safe-themes
    (quote
     ("6145e62774a589c074a31a05dfa5efdf8789cf869104e905956f0cbd7eda9d0e" "e1498b2416922aa561076edc5c9b0ad7b34d8ff849f335c13364c8f4276904f0" "73ad471d5ae9355a7fa28675014ae45a0589c14492f52c32a4e9b393fcc333fd" "aea30125ef2e48831f46695418677b9d676c3babf43959c8e978c0ad672a7329" "16dd114a84d0aeccc5ad6fd64752a11ea2e841e3853234f19dc02a7b91f5d661" "cabc32838ccceea97404f6fcb7ce791c6e38491fd19baa0fcfb336dcc5f6e23c" "7bef2d39bac784626f1635bd83693fae091f04ccac6b362e0405abf16a32230c" default)))
  '(package-selected-packages
    (quote
-    (ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (diff-hl git-gutter-fringe ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(safe-local-variable-values (quote ((hl-sexp-mode) (rainbow-mode . t)))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
