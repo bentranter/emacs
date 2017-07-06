@@ -1,0 +1,92 @@
+#+TITLE: My Emacs Config
+#+STARTUP: Indent
+#+OPTIONS: H:5 num:nil toc:nil timestamps:t
+#+LAYOUT: post
+#+DESCRIPTION: My personal Emacs configuration
+#+TAGS: emacs
+#+CATEGORIES: editing
+
+* Introduction
+
+This is my version of an Emacs config. I started using Emacs around 2013, when everyone (including me) who was using Sublime Text at the time started to realize it was fully abandoned.
+
+You can find the latest version of my config at https://github.com/bentranter/.emacs. This style of config using literate programming was inspired by Chase Adams (@chaseadamsio), and originally based off the config found at https://gitlab.com/buildfunthings/emacs-config (with an accompanying YouTube video! https://www.youtube.com/watch?v=I28jFkpN5Zk).
+
+#+BEGIN_SRC emacs-lisp
+  (setq user-full-name "Ben Tranter")
+  (setq user-email-addr "ben@bentranter.io")
+#+END_SRC
+
+* A secure Emacs environment
+
+Start by forcing Emacs to check that packages are signed.
+
+#+BEGIN_SRC shell :exports none
+  python -m pip install --user certifi
+#+END_SRC
+
+Then set it up in Emacs.
+
+#+BEGIN_SRC emacs-lisp
+  (require 'cl)
+  (setq tls-checktrust t)
+
+  (setq python (or (executable-find "py.exe")
+                   (executable-find "python")
+                   ))
+
+  (let ((trustfile
+         (replace-regexp-in-string
+          "\\\\" "/"
+          (replace-regexp-in-string
+           "\n" ""
+           (shell-command-to-string (concat python " -m certifi"))))))
+    (setq tls-program
+          (list
+           (format "gnutls-cli%s --x509cafile %s -p %%p %%h"
+                   (if (eq window-system 'w32) ".exe" "") trustfile)))
+    (setq gnutls-verify-error t)
+    (setq gnutls-trustfiles (list trustfile)))
+#+END_SRC
+
+* Previous Customizations
+
+This is just to keep annoying custom vars set by Emacs out of your init.el file.
+
+#+BEGIN_SRC emacs-lisp
+  (setq custom-file (concat init-dir "custom.el"))
+  (load custom-file :noerror)
+#+END_SRC
+
+* Packages
+** Setup
+
+Emacs has a surprisingly good package management system built-in.
+
+#+BEGIN_SRC emacs-lisp
+  (defvar gnu '("gnu" . "https://elpa.gnu.org/packages/"))
+  (defvar melpa '("melpa" . "https://melpa.org/packages/"))
+  (defvar melpa-stable '("melpa-stable" . "https://stable.melpa.org/packages/"))
+  (defvar org-elpa '("org" . "http://orgmode.org/elpa/"))
+  (defvar marmalade '("marmalade" . "https://marmalade-repo.org/packages/"))
+
+  (setq package-archives nil)
+  (add-to-list 'package-archives melpa-stable t)
+  (add-to-list 'package-archives melpa t)
+  (add-to-list 'package-archives gnu t)
+  (add-to-list 'package-archives org-elpa t)
+  (add-to-list 'package-archives marmalade t)
+#+END_SRC
+
+Initialize and refresh the contents in case there isn't a cached archive.
+
+#+BEGIN_SRC emacs-lisp
+  (package-initialize)
+
+  (unless (and (file-exists-p (concat init-dir "elpa/archives/gnu"))
+             (file-exists-p (concat init-dir "elpa/archives/melpa"))
+             (file-exists-p (concat init-dir "elpa/archives/melpa-stable")))
+  (package-refresh-contents))
+#+END_SRC
+
+https://gitlab.com/buildfunthings/emacs-config/blob/master/loader.org
