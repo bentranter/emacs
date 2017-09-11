@@ -14,7 +14,7 @@
                          ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 (package-initialize)
- 
+
 ;; List all packages
 (defvar package-list)
 (setq package-list
@@ -23,9 +23,12 @@
         better-defaults
         company
         company-go
+        company-irony
+        elfeed
         evil
         exec-path-from-shell
         flycheck
+        flycheck-irony
         flycheck-swift
         git-gutter
         go-mode
@@ -33,11 +36,16 @@
         ido
         ido-ubiquitous
         ido-vertical-mode
-        neotree ;; for now, may remove
+        irony
+        irony-eldoc
+        neotree
+        nord-theme
+        oceanic-theme
         projectile
         swift-mode
         terraform-mode
-        tide ;; for now, may remove it
+        tide
+        yasnippet
 	))
 
 ;; Refresh package list
@@ -71,6 +79,10 @@
 ;; Wrap lines
 (global-visual-line-mode 0)
 
+;; Use YASnippet
+(require 'yasnippet)
+(yas-global-mode 1)
+
 ;; Tabs are 4 spaces in Go
 (add-hook 'go-mode-hook '(lambda () (setq tab-width 4)))
 
@@ -89,25 +101,6 @@
                     :weight 'normal
                     :width 'normal)
 
-;; Insane stuff I stole from Coda Hale
-(defun coda/configure-cocoa ()
-  ;; ;; open up maximized-ish
-  (let ((px (display-pixel-width))
-        (py (display-pixel-height))
-        (fx (frame-char-width))
-        (fy (frame-char-height))
-        tx ty)
-    (setq tx (- (/ px fx) 7))
-    (setq ty (- (/ py fy) 4))
-    (setq initial-frame-alist '((top . 2) (left . 2)))
-    (add-to-list 'default-frame-alist (cons 'width tx))
-    (add-to-list 'default-frame-alist (cons 'height ty)))
-
-  ;; don't scroll like a maniac
-  (setq mouse-wheel-scroll-amount '(2))
-  (setq mouse-wheel-progressive-speed nil))
-(if (memq window-system '(mac ns)) (coda/configure-cocoa))
-
 ;; Modes for file extensions
 (add-to-list 'auto-mode-alist '("\\.tmpl\\'" . html-mode))
 
@@ -123,7 +116,6 @@
                      (count-lines (point-min) (point-max)))))
          (linum-format (concat " %" (number-to-string w) "d ")))
     ad-do-it))
-(fringe-mode -1)
 (setq column-number-mode t)
 
 ;; Enable git gutter
@@ -154,8 +146,8 @@
 (setq-default company-selection-wrap-around t)
 (setq-default company-minimum-prefix-length 1)
 (setq company-tooltip-limit 20)
-(setq company-idle-delay .3)   
-(setq company-echo-delay 0)    
+(setq company-idle-delay .3)
+(setq company-echo-delay 0)
 (setq company-begin-commands '(self-insert-command))
 
 ;; Enable Projectile
@@ -192,6 +184,27 @@
   (terraform-format-on-save-mode 1))
 (setq terraform-indent-level 2)
 
+;; C Setup
+(add-hook 'c++-mode-hook 'irony-mode)
+(add-hook 'c-mode-hook 'irony-mode)
+(add-hook 'objc-mode-hook 'irony-mode)
+
+;; Replace the `completion-at-point' and `complete-symbol' bindings in
+;; irony-mode's buffers by irony-mode's function
+(defun my-irony-mode-hook ()
+  (define-key irony-mode-map [remap completion-at-point]
+    'irony-completion-at-point-async)
+  (define-key irony-mode-map [remap complete-symbol]
+    'irony-completion-at-point-async))
+(add-hook 'irony-mode-hook 'company-mode)
+(add-hook 'irony-mode-hook 'irony-eldoc)
+(add-hook 'irony-mode-hook 'my-irony-mode-hook)
+(add-hook 'irony-mode-hook 'irony-cdb-autosetup-compile-options)
+(eval-after-load 'company
+  '(add-to-list 'company-backends 'company-irony))
+(add-hook 'irony-mode-hook 'company-irony-setup-begin-commands)
+
+
 ;; Python setup
 
 ;; Lisp setup
@@ -217,8 +230,20 @@
 (setq exec-path (cons "/usr/local/go/bin" exec-path))
 (add-to-list 'exec-path "/Users/ben/Code/go/bin")
 
+;; Delete trailing spaces on save
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
 ;; Theme setup
-(load-theme 'base16-eighties t)
+(load-theme 'nord t)
+
+;; RSS Reader Setup (Elfeed)
+(require 'elfeed)
+(global-set-key (kbd "C-x w") 'elfeed)
+(setq elfeed-feeds
+      '("https://kev.inburke.com/feed/"
+        "https://blog.filippo.io/rss/"))
+
+
 
 ;; And that's it!
 (provide 'init)
@@ -240,7 +265,10 @@
  '(cua-read-only-cursor-color "#859900")
  '(custom-safe-themes
    (quote
-    ("9be1d34d961a40d94ef94d0d08a364c3d27201f3c98c9d38e36f10588469ea57" "4bf5c18667c48f2979ead0f0bdaaa12c2b52014a6abaa38558a207a65caeb8ad" "b3bcf1b12ef2a7606c7697d71b934ca0bdd495d52f901e73ce008c4c9825a3aa" "1156ddf63f7f49890d723b8d7ec9caed9a0d36e53909f5727191fac81192d484" "d9850d120be9d94dd7ae69053630e89af8767c36b131a3aa7b06f14007a24656" "85e6bb2425cbfeed2f2b367246ad11a62fb0f6d525c157038a0d0eaaabc1bfee" "85d609b07346d3220e7da1e0b87f66d11b2eeddad945cac775e80d2c1adb0066" "aded4ec996e438a5e002439d58f09610b330bbc18f580c83ebaba026bbef6c82" "cea3ec09c821b7eaf235882e6555c3ffa2fd23de92459751e18f26ad035d2142" "1606c3a5e58d74a10289df3c7a4005b670e2b80a54c87f05263862cbe4626ac5" "eae831de756bb480240479794e85f1da0789c6f2f7746e5cc999370bbc8d9c8a" "cdbd0a803de328a4986659d799659939d13ec01da1f482d838b68038c1bb35e8" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "3380a2766cf0590d50d6366c5a91e976bdc3c413df963a0ab9952314b4577299" "5a7830712d709a4fc128a7998b7fa963f37e960fd2e8aa75c76f692b36e6cf3c" "cbd8e65d2452dfaed789f79c92d230aa8bdf413601b261dbb1291fb88605110c" "78c1c89192e172436dbf892bd90562bc89e2cc3811b5f9506226e735a953a9c6" "6145e62774a589c074a31a05dfa5efdf8789cf869104e905956f0cbd7eda9d0e" "e1498b2416922aa561076edc5c9b0ad7b34d8ff849f335c13364c8f4276904f0" "73ad471d5ae9355a7fa28675014ae45a0589c14492f52c32a4e9b393fcc333fd" "aea30125ef2e48831f46695418677b9d676c3babf43959c8e978c0ad672a7329" "16dd114a84d0aeccc5ad6fd64752a11ea2e841e3853234f19dc02a7b91f5d661" "cabc32838ccceea97404f6fcb7ce791c6e38491fd19baa0fcfb336dcc5f6e23c" "7bef2d39bac784626f1635bd83693fae091f04ccac6b362e0405abf16a32230c" default)))
+    ("6c35ffc17f8288be4c7866deb7437e8af33cd09930e195738cdfef911ab77274" "c968804189e0fc963c641f5c9ad64bca431d41af2fb7e1d01a2a6666376f819c" "ef04dd1e33f7cbd5aa3187981b18652b8d5ac9e680997b45dc5d00443e6a46e3" "a2ac0ad75d15cd836ca42348b419ac0070c4147ad385f752f794d28c54aa0aa3" "4486ade2acbf630e78658cd6235a5c6801090c2694469a2a2b4b0e12227a64b9" "9be1d34d961a40d94ef94d0d08a364c3d27201f3c98c9d38e36f10588469ea57" "4bf5c18667c48f2979ead0f0bdaaa12c2b52014a6abaa38558a207a65caeb8ad" "b3bcf1b12ef2a7606c7697d71b934ca0bdd495d52f901e73ce008c4c9825a3aa" "1156ddf63f7f49890d723b8d7ec9caed9a0d36e53909f5727191fac81192d484" "d9850d120be9d94dd7ae69053630e89af8767c36b131a3aa7b06f14007a24656" "85e6bb2425cbfeed2f2b367246ad11a62fb0f6d525c157038a0d0eaaabc1bfee" "85d609b07346d3220e7da1e0b87f66d11b2eeddad945cac775e80d2c1adb0066" "aded4ec996e438a5e002439d58f09610b330bbc18f580c83ebaba026bbef6c82" "cea3ec09c821b7eaf235882e6555c3ffa2fd23de92459751e18f26ad035d2142" "1606c3a5e58d74a10289df3c7a4005b670e2b80a54c87f05263862cbe4626ac5" "eae831de756bb480240479794e85f1da0789c6f2f7746e5cc999370bbc8d9c8a" "cdbd0a803de328a4986659d799659939d13ec01da1f482d838b68038c1bb35e8" "a8245b7cc985a0610d71f9852e9f2767ad1b852c2bdea6f4aadc12cce9c4d6d0" "8aebf25556399b58091e533e455dd50a6a9cba958cc4ebb0aab175863c25b9a4" "3380a2766cf0590d50d6366c5a91e976bdc3c413df963a0ab9952314b4577299" "5a7830712d709a4fc128a7998b7fa963f37e960fd2e8aa75c76f692b36e6cf3c" "cbd8e65d2452dfaed789f79c92d230aa8bdf413601b261dbb1291fb88605110c" "78c1c89192e172436dbf892bd90562bc89e2cc3811b5f9506226e735a953a9c6" "6145e62774a589c074a31a05dfa5efdf8789cf869104e905956f0cbd7eda9d0e" "e1498b2416922aa561076edc5c9b0ad7b34d8ff849f335c13364c8f4276904f0" "73ad471d5ae9355a7fa28675014ae45a0589c14492f52c32a4e9b393fcc333fd" "aea30125ef2e48831f46695418677b9d676c3babf43959c8e978c0ad672a7329" "16dd114a84d0aeccc5ad6fd64752a11ea2e841e3853234f19dc02a7b91f5d661" "cabc32838ccceea97404f6fcb7ce791c6e38491fd19baa0fcfb336dcc5f6e23c" "7bef2d39bac784626f1635bd83693fae091f04ccac6b362e0405abf16a32230c" default)))
+ '(elfeed-feeds
+   (quote
+    ("https://www.goinggo.net/index.xml" "https://blog.filippo.io/rss/" "https://kev.inburke.com/feed/")))
  '(fci-rule-color "#383838")
  '(highlight-changes-colors (quote ("#d33682" "#6c71c4")))
  '(highlight-symbol-colors
@@ -271,7 +299,7 @@
     ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-    (flycheck-swift swift-mode projectile pomodoro diff-hl git-gutter-fringe ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (nord-theme sr-speedbar elfeed oceanic-theme yasnippet irony-eldoc flycheck-irony company-irony flycheck-swift swift-mode projectile pomodoro diff-hl git-gutter-fringe ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
