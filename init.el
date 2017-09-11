@@ -19,6 +19,7 @@
 (defvar package-list)
 (setq package-list
       '(
+	alchemist
         base16-theme
         better-defaults
         company
@@ -65,6 +66,9 @@
 ;; Use English even if my computer isn't in English
 (set-language-environment "English")
 
+;; Don't show menu
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
 ;; Use the bar cursor
 (setq-default cursor-type 'bar)
 
@@ -299,7 +303,7 @@
     ("#CC9393" "#DFAF8F" "#F0DFAF" "#7F9F7F" "#BFEBBF" "#93E0E3" "#94BFF3" "#DC8CC3")))
  '(package-selected-packages
    (quote
-    (nord-theme sr-speedbar elfeed oceanic-theme yasnippet irony-eldoc flycheck-irony company-irony flycheck-swift swift-mode projectile pomodoro diff-hl git-gutter-fringe ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
+    (alchemist nord-theme sr-speedbar elfeed oceanic-theme yasnippet irony-eldoc flycheck-irony company-irony flycheck-swift swift-mode projectile pomodoro diff-hl git-gutter-fringe ido-ubiquitous ido-vertical-mode go-eldoc terraform-mode tide company-anaconda anaconda-mode neotree exec-path-from-shell zenburn-theme spacegray-theme material-theme helm flycheck evil company-go color-theme-sanityinc-tomorrow)))
  '(pdf-view-midnight-colors (quote ("#DCDCCC" . "#383838")))
  '(pos-tip-background-color "#073642")
  '(pos-tip-foreground-color "#93a1a1")
