@@ -21,6 +21,7 @@
 (setq package-list
       '(
         company-go
+        color-theme-sanityinc-tomorrow
         crystal-mode
         evil
         exec-path-from-shell
@@ -29,8 +30,7 @@
         git-gutter
         go-mode
         go-eldoc
-        graphene
-        nord-theme
+        magit
         use-package
         yasnippet
 	))
@@ -45,17 +45,16 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;; Require manually installed packages.
-(add-to-list 'load-path "~/.emacs.d/pkg/emacs-cracker")
+;; Use fancy line number mode in Good Emacs Versions, and enable pixel scrolling.
+(when (version<= "26.0.50" emacs-version )
+  (require 'pixel-scroll)
+  (pixel-scroll-mode 1)
+  (global-display-line-numbers-mode))
+
 (require 'crystal-mode)
-(require 'flycheck-crystal)
-(require 'cracker)
 
 ;; Load packages via use-package.
 (require 'use-package)
-
-;; Use Graphene to make the UI nicer, and have better defaults.
-(use-package graphene)
 
 ;; Use Evil Mode.
 (use-package evil
@@ -67,6 +66,9 @@
 
 ;; Set the frame bar to have the same color as the current theme
 (add-to-list 'default-frame-alist '(scroll-bar-background))
+
+;; Magit setup
+(use-package magit)
 
 ;; Enable tag HTML tag completion.
 (setq sgml-quick-keys 'indent)
@@ -82,13 +84,17 @@
 (require 'yasnippet)
 (yas-global-mode 1)
 
+;; Use the new pixel scrolling minor mode in Emacs 26.
+(require 'pixel-scroll)
+(pixel-scroll-mode 1)
+
 ;; Tabs are 4 spaces in Go
 (add-hook 'go-mode-hook '(lambda ()
                             (setq tab-width 4)))
 
 ;; Set default font
 (set-face-attribute 'default nil
-                     :family "Fira Code"
+                     :family "SF Mono"
                      :height 130
                      :weight 'normal
                      :width 'normal)
@@ -100,7 +106,8 @@
 (eval-after-load 'company
   '(progn
      (define-key company-active-map (kbd "TAB") 'company-select-next)
-     (define-key company-active-map [tab] 'company-select-next)))
+     (define-key company-active-map [tab] 'company-select-next)
+     (define-key company-active-map (kbd "RET") 'company-complete-selection)))
 (setq-default company-selection-wrap-around t)
 (setq-default company-minimum-prefix-length 1)
 (setq company-tooltip-limit 20)
@@ -127,7 +134,7 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
 ;; Theme setup
-(load-theme 'nord t)
+(load-theme 'sanityinc-tomorrow-night t)
 
 ;; Get rid of the custom stuff that everyone hates
 (setq custom-file "~/.emacs.d/custom.el")
