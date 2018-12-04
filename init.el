@@ -30,6 +30,7 @@
         git-gutter
         go-mode
         go-eldoc
+        helm
         magit
         use-package
         yasnippet
@@ -49,12 +50,21 @@
 (when (version<= "26.0.50" emacs-version )
   (require 'pixel-scroll)
   (pixel-scroll-mode 1)
-  (global-display-line-numbers-mode))
+  (global-display-line-numbers-mode)
 
-(require 'crystal-mode)
+  ;; Attempt to use cool title bar thing on Mac.
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+  (add-to-list 'default-frame-alist '(ns-appearance . light)))
+
 
 ;; Load packages via use-package.
 (require 'use-package)
+
+;; Use Helm.
+(use-package helm
+  :defer t
+  :init
+  (helm-mode 1))
 
 ;; Use Evil Mode.
 (use-package evil
@@ -83,10 +93,6 @@
 ;; Use YASnippet
 (require 'yasnippet)
 (yas-global-mode 1)
-
-;; Use the new pixel scrolling minor mode in Emacs 26.
-(require 'pixel-scroll)
-(pixel-scroll-mode 1)
 
 ;; Tabs are 4 spaces in Go
 (add-hook 'go-mode-hook '(lambda ()
