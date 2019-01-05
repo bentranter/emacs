@@ -100,7 +100,7 @@
 
 ;; Set default font
 (set-face-attribute 'default nil
-                     :family "SF Mono"
+                     :family "Source Code Pro"
                      :height 130
                      :weight 'normal
                      :width 'normal)
