@@ -1,87 +1,141 @@
 ;;; package --- init.el
 
 ;;; Commentary:
-;;; This is my Emacs config, tuned for Go dev.
+;;; This is my Emacs config.
 
 ;;; Code:
+
+;;
+;; 1. Initialization.
+;;
 
 ;; Require Emacs package functionality.
 (require 'package)
 
 ;; Add the Melpa repository to the list of package sources.
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
                          ("melpa" . "https://melpa.org/packages/")))
 
 ;; Initialize the package system.
 (package-initialize)
 
+;; Keep the installed packages in .emacs.d.
+(setq package-user-dir (expand-file-name "elpa" user-emacs-directory))
+
+;; Update local package metadata if the local cache is missing.
+(unless package-archive-contents
+  (package-refresh-contents))
+
+(setq user-full-name "Ben Tranter"
+      user-mail-address "bentranter@hey.com")
+
+;; Always load newest byte code.
+(setq load-prefer-newer t)
+
+;; Reduce the frequency of garbage collection by making it happen on
+;; each 50MB of allocated data (the default is on every 0.76MB).
+(setq gc-cons-threshold 50000000)
+
+;; Warn when opening files bigger than 100MB.
+(setq large-file-warning-threshold 100000000)
+
+;; Disable the annoying bell ring.
+(setq ring-bell-function 'ignore)
+
+;; Disable the startup screen.
+(setq inhibit-startup-screen t)
+
+;; Nicer scrolling.
+(setq scroll-margin 5
+      scroll-conservatively 100000
+      scroll-preserve-screen-position 1)
+
+;; Maximize the initial frame automatically
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+;; Use English even if my computer isn't in English
+(set-language-environment "English")
+
+;; Show line numbers.
+(global-display-line-numbers-mode)
+
+;; Mode line settings.
+(line-number-mode t)
+(column-number-mode t)
+
+;; Enable y/n answers.
+(fset 'yes-or-no-p 'y-or-n-p)
+
 ;; List all packages.
 (defvar package-list)
 (setq package-list
       '(
-        company-go
-        color-theme-sanityinc-tomorrow
-        crystal-mode
+        company
+        eglot
         evil
         exec-path-from-shell
-        flycheck
-        flycheck-crystal
         git-gutter
         go-mode
-        go-eldoc
-        helm
         magit
         use-package
         yasnippet
 	))
-
-;; Refresh package list.
-(unless package-archive-contents
-  (package-refresh-contents))
-
 
 ;; Install any missing packages.
 (dolist (package package-list)
   (unless (package-installed-p package)
     (package-install package)))
 
-;; Use fancy line number mode in Good Emacs Versions, and enable pixel scrolling.
-(when (version<= "26.0.50" emacs-version )
-  (require 'pixel-scroll)
-  (pixel-scroll-mode 1)
-  (global-display-line-numbers-mode)
+;;
+;; 2. Key rebindings.
+;;
 
-  ;; Attempt to use cool title bar thing on Mac.
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
-  (add-to-list 'default-frame-alist '(ns-appearance . light)))
+;; Use Cmd-r to evaluate the current buffer. Useful for quickly reloading your
+;; config, or evaluating a scratch buffer.
+(global-set-key (kbd "s-r") #'eval-buffer)
 
+;; Use Cmd-s to comment lines or blocks of code, like other modern editors.
+(global-set-key (kbd "s-/") #'comment-line)
+
+;; Use Cmd-[ and Cmd-] to unindent or indent lines or blocks of code, like
+;; other modern editors.
+(global-set-key (kbd "s-[") #'evil-shift-left)
+(global-set-key (kbd "s-]") #'evil-shift-right)
+
+;;
+;; 3. Packages.
+;;
 
 ;; Load packages via use-package.
 (require 'use-package)
 
-;; Use Helm.
-(use-package helm
-  :defer t
-  :init
-  (helm-mode 1))
-
 ;; Use Evil Mode.
 (use-package evil
+  :defer t
   :init
   (evil-mode 1))
 
-;; Use English even if my computer isn't in English
-(set-language-environment "English")
-
-;; Set the frame bar to have the same color as the current theme
-(add-to-list 'default-frame-alist '(scroll-bar-background))
+(use-package eglot
+  :ensure t
+  :defer t
+  :init)
 
 ;; Magit setup
-(use-package magit)
-
-;; Enable tag HTML tag completion.
-(setq sgml-quick-keys 'indent)
+(use-package magit
+  :ensure t
+  :defer t
+  :bind (("C-x g" . magit-status))
+  :config
+  (progn
+    (defun inkel/magit-log-edit-mode-hook ()
+      (setq fill-column 72)
+      (flyspell-mode t)
+      (turn-on-auto-fill))
+    (add-hook 'magit-log-edit-mode-hook 'inkel/magit-log-edit-mode-hook)
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))))
 
 ;; Read your $PATH properly on stupid macOS
 (use-package exec-path-from-shell
@@ -91,11 +145,13 @@
   (exec-path-from-shell-initialize))
 
 ;; Use YASnippet
-(require 'yasnippet)
-(yas-global-mode 1)
+(use-package yasnippet
+  :defer t
+  :init
+  (yas-global-mode 1))
 
 ;; Tabs are 4 spaces in Go
-(add-hook 'go-mode-hook '(lambda ()
+(add-hook 'go-mode-hook #'(lambda ()
                             (setq tab-width 4)))
 
 ;; Set default font
@@ -129,8 +185,8 @@
 (add-hook 'go-mode-hook 'go-eldoc-setup)
 (add-hook 'go-mode-hook 'company-mode)
 (add-hook 'go-mode-hook (lambda ()
-			  (set
-			   (make-local-variable 'company-backends) '(company-go))
+ 			  (set
+ 			   (make-local-variable 'company-backends) '(company-go))
 			  (company-mode)))
 
 ;; Lisp setup
@@ -139,12 +195,19 @@
 ;; Delete trailing spaces on save
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
-;; Theme setup
-(load-theme 'sanityinc-tomorrow-night t)
+;; Newline at the end of the file.
+(setq require-final-newline t)
+
+;;
+;; 4. Colours and theme.
+;;;
+
+;; Set the theme.
+(load-theme 'nord t)
 
 ;; Get rid of the custom stuff that everyone hates
 (setq custom-file "~/.emacs.d/custom.el")
-(load custom-file 'noerror)
+;; (load custom-file 'noerror)
 
 ;; And that's it!
 (provide 'init)
