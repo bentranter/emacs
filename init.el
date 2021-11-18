@@ -4,7 +4,6 @@
 ;;; This is my Emacs config.
 
 ;;; Code:
-
 ;;
 ;; 1. Initialization.
 ;;
@@ -31,6 +30,9 @@
 
 ;; Always load newest byte code.
 (setq load-prefer-newer t)
+
+;; Smart tab behaviour, indent or complete.
+(setq tab-always-indent 'complete)
 
 ;; Reduce the frequency of garbage collection by making it happen on
 ;; each 50MB of allocated data (the default is on every 0.76MB).
@@ -108,6 +110,38 @@
 
 ;; Load packages via use-package.
 (require 'use-package)
+
+;; Highlight the current line (built-in).
+(use-package hl-line
+  :config
+  (global-hl-line-mode +1))
+
+;; Built-in.
+(use-package paren
+  :config
+  (show-paren-mode +1))
+
+;; Built-in.
+(use-package elec-pair
+  :config
+  (electric-pair-mode +1))
+
+;; Use Neotree as a browsable sidebar.
+(use-package neotree
+  :ensure t
+  :defer t
+  :bind (("C-x C-t" . neotree-toggle))
+  :init
+  ;; Prevent slow rendering.
+  (setq inhibit-compacting-font-caches t)
+  ;; Set icons theme to use ASCII arrows.
+  (setq neo-theme 'arrow)
+  ;; Every time when the neotree window is opened, let it find current file and jump to node
+  (setq neo-smart-open t)
+  ;; Show hidden files.
+  (setq-default neo-show-hidden-files t)
+  ;; Don't allow neotree to be the only open window.
+  (setq-default neo-dont-be-alone t))
 
 ;; Use Evil Mode.
 (use-package evil
